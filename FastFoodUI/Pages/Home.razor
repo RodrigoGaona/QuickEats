@@ -1,0 +1,72 @@
+﻿@page "/"
+@inject HttpClient Http
+
+<PageTitle>Guardar Orden</PageTitle>
+
+<div style="padding: 20px; text-align: center;">
+    <h1>Agregar Orden</h1>
+    <p>Escribe tu ID de orden por favor</p>
+
+    <div style="margin-top: 30px; display: flex; flex-direction: column; align-items: center;">
+        <input type="text" @bind="orderInput" placeholder="ID de la Orden (ej. 12345)" style="padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; width: 300px; margin-bottom: 15px;" />
+        <button @onclick="SaveOrder" style="padding: 10px 20px; font-size: 16px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Guardar Orden
+        </button>
+    </div>
+
+    <div style="margin-top: 50px;">
+        <h2>Órdenes Guardadas:</h2>
+        @if (orders == null)
+        {
+            <p>Cargando órdenes...</p>
+        }
+        else if (!orders.Any())
+        {
+            <p>Aún no hay órdenes en la base de datos.</p>
+        }
+        else
+        {
+            <ul style="list-style-type: none; padding: 0;">
+                @foreach (var order in orders)
+                {
+                    <li style="padding: 8px; border-bottom: 1px solid #eee; text-align: left;">
+                        <strong>ID:</strong> @order.OrderId - <strong>Fecha:</strong> @order.CreationDate.ToString("g")
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+</div>
+
+@code {
+    private string orderInput;
+    private List<Order> orders;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOrders();
+    }
+
+    private async Task LoadOrders()
+    {
+        orders = await Http.GetFromJsonAsync<List<Order>>("http://localhost:5113/api/orders");
+    }
+
+    private async Task SaveOrder()
+    {
+        if (!string.IsNullOrEmpty(orderInput))
+        {
+            var newOrder = new Order { OrderId = orderInput };
+            await Http.PostAsJsonAsync("http://localhost:5113/api/orders", newOrder);
+            orderInput = string.Empty;
+            await LoadOrders();
+        }
+    }
+
+    public class Order
+    {
+        public int Id { get; set; }
+        public string OrderId { get; set; }
+        public DateTime CreationDate { get; set; }
+    }
+}

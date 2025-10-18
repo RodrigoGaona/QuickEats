@@ -1,0 +1,13 @@
+# Archivos temporales de Visual Studio
+.vs/
+
+# Carpetas de compilación
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+
+# Paquetes NuGet
+*.nupkg
+*.suo
+*.user
