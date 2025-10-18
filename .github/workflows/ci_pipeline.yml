@@ -18,14 +18,15 @@ jobs:
         dotnet-version: '7.0.x' # Asegúrate de que esta versión coincida con tu proyecto
     
     - name: Restore dependencies
-      run: dotnet restore
+      # ¡CORRECCIÓN CLAVE! Apuntamos a un proyecto para asegurar que funcione.
+      run: dotnet restore FastFoodAPI/FastFoodAPI.csproj
     
     - name: Build Projects
-      # ¡CORRECCIÓN CLAVE! Se apunta al archivo csproj de la API.
+      # ¡CORRECCIÓN CLAVE! Apuntamos al archivo csproj de la API.
       run: dotnet build FastFoodAPI/FastFoodAPI.csproj --configuration Release --no-restore
     
     - name: Run Unit Tests
-      # ¡CORRECCIÓN CLAVE! Se apunta al archivo csproj de las pruebas.
+      # ¡CORRECCIÓN CLAVE! Apuntamos al archivo csproj de las pruebas.
       run: dotnet test FastFoodAPI.Tests/FastFoodAPI.Tests.csproj --no-restore
       
     - name: Publish API for Deployment (CD Artifact)
