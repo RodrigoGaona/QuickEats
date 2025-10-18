@@ -15,23 +15,23 @@ jobs:
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '7.0.x' # Verifica si usas .NET 7 o .NET 8
+        dotnet-version: '7.0.x' # Asegúrate de que esta versión coincida con tu proyecto
     
     - name: Restore dependencies
       run: dotnet restore
     
     - name: Build Projects
-      run: dotnet build --configuration Release --no-restore
+      # ¡CORRECCIÓN CLAVE! Se apunta al archivo csproj de la API.
+      run: dotnet build FastFoodAPI/FastFoodAPI.csproj --configuration Release --no-restore
     
     - name: Run Unit Tests
-      # Si una prueba falla (como la que corregimos), el pipeline se detiene.
+      # ¡CORRECCIÓN CLAVE! Se apunta al archivo csproj de las pruebas.
       run: dotnet test FastFoodAPI.Tests/FastFoodAPI.Tests.csproj --no-restore
       
     - name: Publish API for Deployment (CD Artifact)
       run: dotnet publish FastFoodAPI/FastFoodAPI.csproj -c Release -o ./publish_api
       
     - name: Archive API Build Artifact
-      # Guarda el paquete de la API para que el job de CD lo use.
       uses: actions/upload-artifact@v4
       with:
         name: fastfood-api-artifact
