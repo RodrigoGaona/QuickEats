@@ -18,7 +18,7 @@ jobs:
         dotnet-version: '7.0.x' # Asegúrate de que esta versión coincida con tu proyecto
     
     - name: Restore dependencies
-      # ¡CORRECCIÓN CLAVE! Restauramos explícitamente las dependencias en AMBOS proyectos.
+  # Esta es la corrección clave para apuntar a ambos proyectos
       run: |
         dotnet restore FastFoodAPI/FastFoodAPI.csproj
         dotnet restore FastFoodAPI.Tests/FastFoodAPI.Tests.csproj
