@@ -1,0 +1,31 @@
+name: CD - Deploy API to Staging/Production
+
+on:
+  workflow_run:
+    workflows: ["CI - Build and Test .NET Projects"] # Se dispara cuando el CI termina
+    types:
+      - completed
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    # Solo se ejecuta si el CI anterior ('workflow_run') tuvo éxito
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    
+    environment: Staging # Un entorno para gestión de secretos/configuración
+
+    steps:
+    - name: Download Build Artifact (from CI)
+      uses: actions/download-artifact@v4
+      with:
+        name: fastfood-api-artifact
+        path: ./deploy_package
+        
+    - name: Deploy to Hosting Platform (Placeholder)
+      # Simulación del despliegue
+      run: echo "Simulando el despliegue automático del artefacto API..."
+      
+    - name: Deployment Success Notification
+      run: echo "🚀 Despliegue completado del API a Staging."

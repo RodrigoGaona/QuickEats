@@ -1,0 +1,38 @@
+name: CI - Build and Test .NET Projects
+
+on:
+  push:
+    branches:
+      - develop  # Ejecutar en la rama de desarrollo
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '7.0.x' # Verifica si usas .NET 7 o .NET 8
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build Projects
+      run: dotnet build --configuration Release --no-restore
+    
+    - name: Run Unit Tests
+      # Si una prueba falla (como la que corregimos), el pipeline se detiene.
+      run: dotnet test FastFoodAPI.Tests/FastFoodAPI.Tests.csproj --no-restore
+      
+    - name: Publish API for Deployment (CD Artifact)
+      run: dotnet publish FastFoodAPI/FastFoodAPI.csproj -c Release -o ./publish_api
+      
+    - name: Archive API Build Artifact
+      # Guarda el paquete de la API para que el job de CD lo use.
+      uses: actions/upload-artifact@v4
+      with:
+        name: fastfood-api-artifact
+        path: ./publish_api
