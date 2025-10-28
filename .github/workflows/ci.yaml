@@ -1,0 +1,51 @@
+name: CI - Pruebas y Publicación (FastFood Project)
+
+on:
+  push:
+    branches: [ develop, main ] # Se ejecuta al subir cambios a estas ramas
+  pull_request:
+    branches: [ develop, main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout del Código 
+      uses: actions/checkout@v4
+    
+    - name: Configurar .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x # Reemplaza con tu versión de .NET si es diferente (ej. 7.0.x)
+
+    - name: Restaurar dependencias
+      run: dotnet restore
+      
+    # -----------------------------
+    # PASO 1: Ejecutar Pruebas Unitarias
+    # (El CI falla si una prueba no pasa)
+    # -----------------------------
+    - name: Ejecutar Pruebas Unitarias (FastFoodAPI.Tests)
+      run: dotnet test FastFoodAPI.Tests/FastFoodAPI.Tests.csproj --no-restore --verbosity normal
+      
+    # -----------------------------
+    # PASO 2: Publicar y Construir Artefactos (Preparación para Despliegue)
+    # -----------------------------
+    - name: Publicar FastFoodAPI
+      run: dotnet publish FastFoodAPI/FastFoodAPI.csproj -c Release -o ${{ github.workspace }}/publish_api
+      
+    - name: Publicar FastFoodUI
+      run: dotnet publish FastFoodUI/FastFoodUI.csproj -c Release -o ${{ github.workspace }}/publish_ui
+      
+    # -----------------------------
+    # PASO 3: Subir Artefacto para Despliegue (CD)
+    # -----------------------------
+    - name: Subir Artefacto de Despliegue
+      uses: actions/upload-artifact@v4
+      with:
+        name: fastfood-proyecto-integrador
+        path: |
+          ${{ github.workspace }}/publish_api
+          ${{ github.workspace }}/publish_ui
+        # Este paso hace que los archivos compil
