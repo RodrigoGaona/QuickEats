@@ -17,7 +17,7 @@ jobs:
           distribution: 'zulu' # Alternative distribution options are available.
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - name: Cache SonarQube Cloud packages
         uses: actions/cache@v4
         with:
@@ -42,6 +42,13 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
+          # 1. Comienzo del análisis (dotnet sonarscanner begin)
           ${{ runner.temp }}\scanner\dotnet-sonarscanner begin /k:"RodrigoGaona_QuickEats" /o:"rodrigogaona" /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-          dotnet build
+
+          # 2. CORRECCIÓN CLAVE: Compilar el proyecto
+          # El error ocurría aquí porque no encontraba el archivo .sln.
+          # Debes especificar la ruta de tu solución:
+          dotnet build QuickEatsAPI.sln
+
+          # 3. Finalizar el análisis y subir el reporte (dotnet sonarscanner end)
           ${{ runner.temp }}\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
