@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - Master
+      - master
+      - develop # <-- Añadido para la rama de desarrollo
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
@@ -14,10 +16,10 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: 17
-          distribution: 'zulu' # Alternative distribution options are available.
+          distribution: 'zulu'
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0 # Deshabilitar clonaciones superficiales para un análisis completo
       - name: Cache SonarQube Cloud packages
         uses: actions/cache@v4
         with:
@@ -42,6 +44,14 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
+          # 1. Comienzo del análisis (dotnet sonarscanner begin)
           ${{ runner.temp }}\scanner\dotnet-sonarscanner begin /k:"RodrigoGaona_QuickEats" /o:"rodrigogaona" /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-          dotnet build
+
+          # 2. CORRECCIÓN: Especificar el archivo de solución correcto.
+          # Asumiendo que se llama QuickEats.sln y está en la raíz.
+          # SI NO FUNCIONA, PRUEBA CON EL NOMBRE EXACTO DE TU .sln, 
+          # o agrega la ruta relativa (ej: 'src/QuickEats.sln').
+          dotnet build QuickEats.sln 
+
+          # 3. Finalizar el análisis y subir el reporte (dotnet sonarscanner end)
           ${{ runner.temp }}\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
